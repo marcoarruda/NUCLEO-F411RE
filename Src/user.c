@@ -18,12 +18,10 @@ SENS_StatusTypeDef userSensorHello(unsigned char address, unsigned char reg, uns
 
 // Configure sensors
 void userConfig() {
-  userConfigComm();
   userConfigSens();
 }
-void userConfigComm() {
-}
 void userConfigSens() {
+  userConfigLSM6DS0();
   userConfigLIS3MDL();
   userConfigLPS25HB();
   userConfigHTS221();
@@ -62,6 +60,10 @@ SENS_StatusTypeDef userConfigLSM6DS0() {
     
     txBuffer[0] = LSM6DS0_REFG_ADDR;
     txBuffer[1] = LSM6DS0_REFG_VALUE;
+    HAL_I2C_Master_Transmit(&hi2c1, LSM6DS0_ADDR_W, (uint8_t*) txBuffer, (uint16_t) 2, (uint32_t)1000);
+    
+    txBuffer[0] = LSM6DS0_INT_CTRL_ADDR;
+    txBuffer[1] = LSM6DS0_INT_CTRL_VALUE;
     HAL_I2C_Master_Transmit(&hi2c1, LSM6DS0_ADDR_W, (uint8_t*) txBuffer, (uint16_t) 2, (uint32_t)1000);
     
     txBuffer[0] = LSM6DS0_CTRL_REG1_G_ADDR;
