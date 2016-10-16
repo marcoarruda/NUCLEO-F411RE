@@ -38,14 +38,34 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "user.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+// Loop
+uint32_t count = 0;
+uint8_t exec1count = 0, exec10count = 0, exec100count = 0, exec1000count = 0;
+// HTS221
+uint8_t HTS221_calib[16];
+uint8_t HTS221_read[5];
+uint16_t sens_humidity;
+int16_t sens_temperature;
+// LIS3MDL
+uint8_t LIS3MDL_read[9];
+int16_t sens_magnetometer[3];
+// LSM6DS0
+int16_t gyro_data_available_count = 0;
+char init_comm = '[';
+char end_comm = ']';
+char teste[7] = "abcdef";
+uint8_t LSM6DS0_status_read;
+uint8_t LSM6DS0_acce_read[6];
+int16_t sens_accelerometer[3];
+uint8_t LSM6DS0_gyro_read[6];
+int16_t sens_gyroscope[3];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -54,18 +74,79 @@ void Error_Handler(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
+void execute1Hz(void);
+void execute10Hz(void);
+void execute100Hz(void);
+void execute1000Hz(void);
+void toggleLed() {
+  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+}
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-
+void HAL_SYSTICK_Callback(void) {
+  count++;
+  
+  // 1000 hz
+  execute1000Hz();
+  
+  // 100 hz
+  if(count%10 == 0) execute100Hz();
+  
+  // 10 hz
+  if(count%100 == 0) execute10Hz();
+  
+  // 1 hz
+  if(count % 1000 == 0) {
+    count = 0;
+    execute1Hz();
+  }
+}
+void getSensors() {
+  // Reading sensor
+  userReadHTS221(&HTS221_read[0]);
+  userReadLIS3MDL(&LIS3MDL_read[0]);
+  
+  // Interpreting sensors
+  userInterpHTS221(&HTS221_read[0], &sens_humidity, &sens_temperature);
+  userInterpLIS3MDL(&LIS3MDL_read[0], &sens_magnetometer[0]);
+  
+  userReadLSM6DS0(&LSM6DS0_acce_read[0], &LSM6DS0_gyro_read[0], &LSM6DS0_status_read);
+  userInterpLSM6DS0(&LSM6DS0_acce_read[0], &LSM6DS0_gyro_read[0], &sens_accelerometer[0], &sens_gyroscope[0]);
+  
+  HAL_UART_Transmit(&huart1, &init_comm, 1, 100);
+  HAL_UART_Transmit(&huart1, &LSM6DS0_acce_read[0], 6, 1);
+  HAL_UART_Transmit(&huart1, &LSM6DS0_gyro_read[0], 6, 1);
+  HAL_UART_Transmit(&huart1, &end_comm, 1, 100);
+}
+void execute1Hz(void) {
+}
+void execute10Hz(void) {
+  getSensors();
+  toggleLed();
+}
+void execute100Hz(void) {
+}
+void execute1000Hz(void) {
+}
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+  int a = 0;
+  int b = 2;
+  a = a+b;
+}
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart) {
+  int a = 0;
+  int b = 2;
+  a = a+b;
+}
 /* USER CODE END 0 */
 
 int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+  
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -84,7 +165,7 @@ int main(void)
   MX_USART2_UART_Init();
 
   /* USER CODE BEGIN 2 */
-
+  userConfigSens();
   /* USER CODE END 2 */
 
   /* Infinite loop */
