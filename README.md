@@ -11,3 +11,9 @@ It is being developed using an ARM based microcontroller from ST ([link](http://
 
 ### Software
 The development is under a Windows machine with STM32CubeMX in order to generate the hardware configuration code and IAR EWARM to program and debug
+
+
+### Team
+
+ART - Aerial Robots Team
+LabRom - Laboratório de Robótica Móvel
