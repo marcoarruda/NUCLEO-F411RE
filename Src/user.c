@@ -333,3 +333,12 @@ SENS_StatusTypeDef userInterpLSM6DS0(uint8_t *read_accelerometer, uint8_t *read_
   return SENS_OK;
 }
 
+// PWM
+void userStartPWM(TIM_HandleTypeDef *htim, uint32_t Channel) {
+  HAL_TIM_PWM_Start(htim, Channel);
+}
+void userSetPWM(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t period, float percentage) {
+  HAL_TIM_PWM_Stop(htim, Channel);
+  MX_TIM3_Init(period, percentage);
+  HAL_TIM_PWM_Start(htim, Channel);
+}

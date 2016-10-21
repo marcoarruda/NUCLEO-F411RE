@@ -53,7 +53,7 @@ extern TIM_HandleTypeDef htim3;
 
 extern void Error_Handler(void);
 
-void MX_TIM3_Init(void);
+void MX_TIM3_Init(uint32_t period, float percentage);
                     
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                 

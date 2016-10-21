@@ -47,10 +47,9 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 // PWM
-uint8_t val=0;
+uint32_t pwmPeriod = 65535; // ~20khz
 // Loop
 uint32_t count = 0;
-uint8_t exec1count = 0, exec10count = 0, exec100count = 0, exec1000count = 0;
 // HTS221
 uint8_t HTS221_calib[16];
 uint8_t HTS221_read[5];
@@ -63,7 +62,6 @@ int16_t sens_magnetometer[3];
 int16_t gyro_data_available_count = 0;
 char init_comm = '[';
 char end_comm = ']';
-char teste[7] = "abcdef";
 uint8_t LSM6DS0_status_read;
 uint8_t LSM6DS0_acce_read[6];
 int16_t sens_accelerometer[3];
@@ -82,10 +80,7 @@ void execute1Hz(void);
 void execute10Hz(void);
 void execute100Hz(void);
 void execute1000Hz(void);
-void toggleLed() {
-  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-}
-
+void toggleLed(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -96,10 +91,14 @@ void HAL_SYSTICK_Callback(void) {
   execute1000Hz();
   
   // 100 hz
-  if(count%10 == 0) execute100Hz();
+  if(count%10 == 0) {
+    execute100Hz();
+  }
   
   // 10 hz
-  if(count%100 == 0) execute10Hz();
+  if(count%100 == 0) {
+    execute10Hz();
+  }
   
   // 1 hz
   if(count % 1000 == 0) {
@@ -129,10 +128,14 @@ void execute1Hz(void) {
 void execute10Hz(void) {
   getSensors();
   toggleLed();
+  userSetPWM(&htim3, TIM_CHANNEL_2, pwmPeriod, count / 10);
 }
 void execute100Hz(void) {
 }
 void execute1000Hz(void) {
+}
+void toggleLed(void) {
+  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
 }
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
   int a = 0;
@@ -167,11 +170,11 @@ int main(void)
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   MX_USART2_UART_Init();
-  MX_TIM3_Init();
+  MX_TIM3_Init(pwmPeriod, 50);
 
   /* USER CODE BEGIN 2 */
   userConfigSens();
-  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_2);
+  userStartPWM(&htim3, TIM_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */

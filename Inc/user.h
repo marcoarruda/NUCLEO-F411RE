@@ -131,3 +131,7 @@ void _userInterpHTS221_humidity(uint8_t *read, uint16_t *humidity);
 void _userInterpHTS221_temperature(uint8_t *read, int16_t *temperature);
 SENS_StatusTypeDef userInterpLIS3MDL(uint8_t *read, int16_t *magnetometer);
 SENS_StatusTypeDef userInterpLSM6DS0(uint8_t *read_accelerometer, uint8_t *read_gyroscope, int16_t *accelerometer, int16_t *gyroscope);
+
+// PWM
+void userStartPWM(TIM_HandleTypeDef *htim, uint32_t Channel);
+void userSetPWM(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t period, float percentage);
