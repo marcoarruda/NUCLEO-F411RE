@@ -47,9 +47,9 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 // PWM
-uint32_t pwmPeriod = 65535; // ~20khz
+uint32_t pwmPeriod = 45000; // ~20khz
 // Loop
-uint32_t count = 0;
+uint32_t count = 0, count2 = 0;
 // HTS221
 uint8_t HTS221_calib[16];
 uint8_t HTS221_read[5];
@@ -124,11 +124,15 @@ void getSensors() {
   HAL_UART_Transmit(&huart1, &end_comm, 1, 100);
 }
 void execute1Hz(void) {
+  userSetPWM(&htim3, TIM_CHANNEL_2, pwmPeriod, count2);
+  count2 += 10;
+  if(count2 > 100) {
+    count2 = 0;
+  }
 }
 void execute10Hz(void) {
   getSensors();
   toggleLed();
-  userSetPWM(&htim3, TIM_CHANNEL_2, pwmPeriod, count / 10);
 }
 void execute100Hz(void) {
 }
